@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <title>Petite Fullstack</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./pocketbase.umd.js"></script>
+    <script src="./messages.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <style type="text/css">
+      body {
+        overscroll-behavior: none;
+      }
+    </style>
+  </head>
+  <body
+    class="d-flex flex-column h-100"
+    x-data="pageData()"
+    x-init="getMessages(); subscribe();"
+  >
+    <header x-show="!showLogin" class="fixed-top text-bg-dark">
+      <nav class="container navbar">
+        <p class="mb-0">
+          <span>Hello, </span>
+          <span x-text="user.name"></span>
+        </p>
+        <button class="btn btn-secondary" @click="logout()">Log out</button>
+      </nav>
+    </header>
+    <main class="flex-shrink-0 container">
+      <div x-transition x-show="showLogin">
+        <h2>Login</h2>
+
+        <label for="email" class="form-label">Email</label>
+        <input
+          class="form-control mb-3"
+          x-model="email"
+          type="email"
+          id="email"
+          placeholder="Email address"
+        />
+
+        <label for="password" class="form-label">Password</label>
+        <input
+          class="form-control mb-3"
+          x-model="password"
+          type="password"
+          id="password"
+          placeholder="password"
+        />
+
+        <button @click="login()" class="btn btn-primary">Log in</button>
+      </div>
+      <ol
+        x-transition
+        x-show="!showLogin"
+        class="list-unstyled my-5 py-3"
+        role="list"
+      >
+        <li
+          x-show="messages.length === 0"
+          x-transition
+          class="mx-auto text-center fs-1"
+        >
+          No messages
+        </li>
+        <template x-for="message in messages" :key="message.id">
+          <li x-transition class="me-auto d-flex flex-shrink-0 pb-4">
+            <div
+              class="flex-shrink-1 w-100 bg-light rounded py-2 px-3 ms-3 d-flex justify-content-between"
+            >
+              <div>
+                <h3 class="mb-1 fs-5" x-text="message.expand.user[0].name"></h3>
+                <span
+                  class="text-muted small text-nowrap"
+                  x-data="{ date: new Date(message.created) }"
+                  x-text="date.toLocaleString('en-US', {timeStyle: 'short'})"
+                ></span>
+                <p class="mb-0" x-text="message.text"></p>
+              </div>
+              <div x-show="message.expand.user[0].id === user.id">
+                <button
+                  @click="deleteMsg(message.id)"
+                  class="btn btn-danger btn-sm"
+                  aria-label="Delete Message"
+                >
+                  <svg
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-trash"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </li>
+        </template>
+      </ol>
+    </main>
+    <footer
+      x-transition
+      x-show="!showLogin"
+      class="footer mt-auto py-3 bg-light fixed-bottom"
+    >
+      <form
+        @submit.prevent="submitData"
+        x-ref="form"
+        class="d-flex gap-2 container"
+      >
+        <input
+          x-model="text"
+          type="text"
+          class="form-control"
+          placeholder="Send message"
+        />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </footer>
+  </body>
+</html>
