@@ -4,14 +4,52 @@ const client = new PocketBase(address);
 
 function pageData() {
   return {
+    authForm: {
+      email: null,
+      password: null,
+      passwordConfirm: null,
+      username: null,
+      loginMessage: null,
+    },
+
+    async login() {
+      try {
+        await client
+          .collection("users")
+          .authWithPassword(this.authForm.email, this.authForm.password);
+        this.showLogin = false;
+        this.authForm.email = "";
+        this.authForm.password = "";
+        window.location.reload(true);
+      } catch (err) {
+        this.authForm.loginMessage = err;
+      }
+    },
+
+    async signUp() {
+      try {
+        const createdUser = await client.collection("users").create({
+          email: this.authForm.email,
+          emailVisibility: false,
+          password: this.authForm.password,
+          passwordConfirm: this.authForm.passwordConfirm,
+          name: this.authForm.username,
+        });
+        window.location.reload(true);
+        this.authForm.email = "";
+        this.authForm.password = "";
+        this.authForm.passwordConfirm = "";
+        this.authForm.username = "";
+      } catch (err) {
+        this.authForm.loginMessage = err;
+      }
+    },
+
     messages: [],
     text: "",
     user: client.authStore.model,
 
     showLogin: window.localStorage.getItem("pocketbase_auth") ? false : true,
-    email: null,
-    password: null,
-    loginMessage: null,
 
     async getMessages() {
       const records = await client.collection("messages").getFullList({
@@ -50,19 +88,6 @@ function pageData() {
         await client.collection("messages").delete(id);
       } catch (err) {
         console.log("ERR", err);
-      }
-    },
-
-    async login() {
-      try {
-        await client
-          .collection("users")
-          .authWithPassword(this.email, this.password);
-        this.showLogin = false;
-        this.email = "";
-        this.password = "";
-      } catch (err) {
-        this.loginMessage = err;
       }
     },
 

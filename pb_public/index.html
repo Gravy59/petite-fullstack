@@ -37,28 +37,64 @@
       </nav>
     </header>
     <main class="flex-shrink-0 container">
-      <div x-transition x-show="showLogin">
-        <h2>Login</h2>
+      <div x-transition x-show="showLogin" x-data="{ showSignUp: false }">
+        <h2 x-text="showSignUp ? 'Sign Up' : 'Log in'"></h2>
+        <form @submit.prevent="showSignUp ? signUp() : login()">
+          <label for="email" class="form-label">Email</label>
+          <input
+            required
+            class="form-control mb-3"
+            x-model="authForm.email"
+            type="email"
+            id="email"
+            placeholder="Email address"
+          />
 
-        <label for="email" class="form-label">Email</label>
-        <input
-          class="form-control mb-3"
-          x-model="email"
-          type="email"
-          id="email"
-          placeholder="Email address"
-        />
+          <label x-show="showSignUp" for="username" class="form-label"
+            >Username</label
+          >
+          <input
+            x-show="showSignUp"
+            class="form-control mb-3"
+            x-model="authForm.username"
+            type="text"
+            id="username"
+            placeholder="Noobmaster69"
+          />
 
-        <label for="password" class="form-label">Password</label>
-        <input
-          class="form-control mb-3"
-          x-model="password"
-          type="password"
-          id="password"
-          placeholder="password"
-        />
+          <label for="password" class="form-label">Password</label>
+          <input
+            required
+            class="form-control mb-3"
+            x-model="authForm.password"
+            type="password"
+            id="password"
+            placeholder="password"
+          />
 
-        <button @click="login()" class="btn btn-primary">Log in</button>
+          <label x-show="showSignUp" for="password-confirm" class="form-label"
+            >Confirm password</label
+          >
+          <input
+            x-show="showSignUp"
+            class="form-control mb-3"
+            x-model="authForm.passwordConfirm"
+            type="password"
+            id="password-confirm"
+            placeholder="password"
+          />
+
+          <button
+            x-text="showSignUp ? 'Sign Up' : 'Log In'"
+            type="submit"
+            class="btn btn-primary"
+          ></button>
+          <button
+            @click="showSignUp = !showSignUp"
+            class="btn btn-primary"
+            x-text="showSignUp ? 'Have an account? Log in' : 'No account? Sign up'"
+          ></button>
+        </form>
       </div>
       <ol
         x-transition
